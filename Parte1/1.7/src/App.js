@@ -15,7 +15,6 @@ const App = () => {
   const [bad, setBad] = useState(0)
 
   const handleClick = (e) => {
-    console.log(good)
     return e.target.name === 'Good'
       ? setGood(good + 1)
       : e.target.name === 'Neutral'
@@ -34,9 +33,6 @@ const App = () => {
         <Button text="Good" onClick={handleClick} />
         <Button text="Neutral" onClick={handleClick} />
         <Button text="Bad" onClick={handleClick} />
-        {/* <button onClick={() => setGood + 1}>good</button>
-        <button onClick={() => setNeutral + 1}>neutral</button>
-        <button onClick={() => setBad + 1}>bad</button> */}
       </div>
       <div>
         <h2>Statics</h2>
