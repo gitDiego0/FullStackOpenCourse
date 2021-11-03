@@ -1,25 +1,22 @@
 import ReactDOM from 'react-dom'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
+import './styles/styles.css'
+
 const App = () => {
-  const [persons, setPersons] = useState([])
-  const [personsFiltered, setPersonsFiltered] = useState([])
+  const [persons, setPersons] = useState([
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 },
+  ])
+  const [personsFiltered, setPersonsFiltered] = useState(persons)
 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-
-  useEffect(() => {
-    fetch(`http://localhost:3001/persons`)
-      .then((response) => response.json())
-      .then((json) => setPersons(json))
-      .catch((err) => console.log(err.message))
-  }, [])
-
-  useEffect(() => {
-    setPersonsFiltered(persons)
-  }, [persons])
+  const [success, setSuccess] = useState(false)
 
   const handleNameChange = (event) => {
-    console.log(persons)
+    console.log(event.target.value)
     setNewName(event.target.value)
   }
 
@@ -30,15 +27,17 @@ const App = () => {
   const addName = (event) => {
     event.preventDefault()
     if (!checkIfExists()) {
-      setPersons([
+      setPersonsFiltered([
         ...persons,
         {
           name: newName,
           number: newNumber,
         },
       ])
+      setSuccess(true)
     } else {
       alert(`${newName} is already added to phonebook`)
+      setSuccess(false)
     }
   }
 
@@ -67,7 +66,7 @@ const App = () => {
       <div>
         <h2>add new</h2>
       </div>
-
+      <div className={success ? 'success' : 'none'}>Person added correctly</div>
       <form onSubmit={addName}>
         <div>
           name: <input value={newName} onChange={handleNameChange} />

@@ -1,5 +1,7 @@
 import ReactDOM from 'react-dom'
 import React, { useEffect, useState } from 'react'
+import personsService from './services/persons'
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [personsFiltered, setPersonsFiltered] = useState([])
@@ -8,9 +10,9 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
 
   useEffect(() => {
-    fetch(`http://localhost:3001/persons`)
-      .then((response) => response.json())
-      .then((json) => setPersons(json))
+    personsService
+      .getAll()
+      .then((response) => setPersons(response.data))
       .catch((err) => console.log(err.message))
   }, [])
 
@@ -35,8 +37,14 @@ const App = () => {
         {
           name: newName,
           number: newNumber,
+          id: persons.length + 1,
         },
       ])
+      personsService.create({
+        name: newName,
+        number: newNumber,
+        id: persons.length + 1,
+      })
     } else {
       alert(`${newName} is already added to phonebook`)
     }
@@ -80,11 +88,13 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      {personsFiltered.map(({ name, number }) => {
+      {personsFiltered.map(({ name, number, id }) => {
         return (
-          <p key={name}>
-            {name} - {number}
-          </p>
+          <div key={id}>
+            <span key={name}>
+              {name} - {number}
+            </span>
+          </div>
         )
       })}
     </div>

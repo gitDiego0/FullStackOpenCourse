@@ -1,0 +1,11 @@
+.success {
+  display: block;
+  border: solid 5px darkgreen;
+  background-color: lightgreen;
+  padding: 10px;
+  margin: 10px;
+}
+
+.none {
+  display: none;
+}

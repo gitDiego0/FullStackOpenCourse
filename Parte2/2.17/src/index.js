@@ -1,5 +1,7 @@
 import ReactDOM from 'react-dom'
 import React, { useEffect, useState } from 'react'
+import personsService from './services/persons'
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [personsFiltered, setPersonsFiltered] = useState([])
@@ -8,9 +10,9 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
 
   useEffect(() => {
-    fetch(`http://localhost:3001/persons`)
-      .then((response) => response.json())
-      .then((json) => setPersons(json))
+    personsService
+      .getAll()
+      .then((response) => setPersons(response.data))
       .catch((err) => console.log(err.message))
   }, [])
 
@@ -25,6 +27,12 @@ const App = () => {
 
   const handleNumberChange = (event) => {
     setNewNumber(event.target.value)
+  }
+
+  const handleRemove = (id) => {
+    if (window.confirm('Do you really want remove this person?')) {
+      personsService.remove(id)
+    }
   }
 
   const addName = (event) => {
@@ -80,11 +88,14 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      {personsFiltered.map(({ name, number }) => {
+      {personsFiltered.map(({ name, number, id }) => {
         return (
-          <p key={name}>
-            {name} - {number}
-          </p>
+          <div key={id}>
+            <span key={name}>
+              {name} - {number}
+            </span>
+            <button onClick={() => handleRemove(id)}>Delete</button>
+          </div>
         )
       })}
     </div>

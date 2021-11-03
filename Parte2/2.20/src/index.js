@@ -1,5 +1,8 @@
 import ReactDOM from 'react-dom'
 import React, { useEffect, useState } from 'react'
+import personsService from './services/persons'
+import './styles/styles.css'
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [personsFiltered, setPersonsFiltered] = useState([])
@@ -7,10 +10,14 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
 
+  const [success, setSuccess] = useState(false)
+  const [show, setShow] = useState(false)
+
   useEffect(() => {
-    fetch(`http://localhost:3001/persons`)
-      .then((response) => response.json())
-      .then((json) => setPersons(json))
+    setShow(false)
+    personsService
+      .getAll()
+      .then((response) => setPersons(response.data))
       .catch((err) => console.log(err.message))
   }, [])
 
@@ -19,7 +26,6 @@ const App = () => {
   }, [persons])
 
   const handleNameChange = (event) => {
-    console.log(persons)
     setNewName(event.target.value)
   }
 
@@ -27,18 +33,36 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
+  const handleRemove = (id) => {
+    if (window.confirm('Do you really want remove this person?')) {
+      personsService.remove(id).catch((err) => {
+        console.log(err.message)
+      })
+    }
+  }
+
   const addName = (event) => {
     event.preventDefault()
-    if (!checkIfExists()) {
-      setPersons([
-        ...persons,
-        {
-          name: newName,
-          number: newNumber,
-        },
-      ])
+    const element = checkIfExists()
+    if (!element) {
+      personsService.create({
+        name: newName,
+        number: newNumber,
+        id: persons.length + 1,
+      })
+      setSuccess(true)
+      setShow(true)
     } else {
-      alert(`${newName} is already added to phonebook`)
+      personsService
+        .update(element.id, { name: newName, number: newNumber })
+        .then(() => {
+          return alert('Person updated')
+        })
+        .catch((err) => {
+          console.log(err.message)
+          setSuccess(false)
+          setShow(true)
+        })
     }
   }
 
@@ -67,7 +91,9 @@ const App = () => {
       <div>
         <h2>add new</h2>
       </div>
-
+      <div className={show ? (success ? 'success' : 'error') : 'none'}>
+        {success ? `Person added correctly` : `Person doesn't exists `}
+      </div>
       <form onSubmit={addName}>
         <div>
           name: <input value={newName} onChange={handleNameChange} />
@@ -80,11 +106,14 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      {personsFiltered.map(({ name, number }) => {
+      {personsFiltered.map(({ name, number, id }) => {
         return (
-          <p key={name}>
-            {name} - {number}
-          </p>
+          <div key={id}>
+            <span key={name}>
+              {name} - {number}
+            </span>
+            <button onClick={() => handleRemove(id)}>Delete</button>
+          </div>
         )
       })}
     </div>
